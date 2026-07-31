@@ -1,4 +1,4 @@
-langchain 
+langchain
 langchain-core
 langchain-community
 langchain-google-genai
@@ -10,7 +10,7 @@ beautifulsoup4
 lxml
 requests
 fastapi
-"uvicorn[standard]"
+uvicorn[standard]
 pydantic-settings
 python-dotenv
 pytest

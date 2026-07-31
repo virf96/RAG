@@ -1,15 +1,30 @@
+# Python
 .venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
 
+# Variables y credenciales
 .env
 *.json
 
-chroma_db/
+# Documentos y resultados locales
 data/raw/*
 data/processed/*
+chroma_db/
 
+# Conservar estructura
 !data/raw/.gitkeep
+!data/raw/compute/
+!data/raw/storage/
+!data/raw/networking/
+!data/raw/security/
+!data/raw/architecture/
+
+!data/raw/compute/.gitkeep
+!data/raw/storage/.gitkeep
+!data/raw/networking/.gitkeep
+!data/raw/security/.gitkeep
+!data/raw/architecture/.gitkeep
 !data/processed/.gitkeep
