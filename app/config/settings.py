@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    google_cloud_project: str
+    google_cloud_project: str = "project-73c1e9e8-7da9-4b68-ad8"
     google_cloud_location: str = "us-central1"
     google_genai_use_vertexai: bool = True
 

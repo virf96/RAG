@@ -1,24 +1,56 @@
+from pathlib import Path
+
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
-
-from app.config.settings import get_settings
-from app.embeddings.factory import create_embeddings
+from langchain_core.embeddings import Embeddings
 
 
-def create_vector_store(
-    documents: list[Document] | None = None,
+def create_chroma_store(
+    documents: list[Document],
+    embeddings: Embeddings,
+    persist_directory: str = "data/processed/chroma",
+    collection_name: str = "azure_docs",
 ) -> Chroma:
-    settings = get_settings()
-    embeddings = create_embeddings()
+    """Create and persist a Chroma vector store."""
 
-    vector_store = Chroma(
-        collection_name=settings.chroma_collection,
-        embedding_function=embeddings,
-        persist_directory=settings.chroma_directory,
+    if not documents:
+        raise ValueError("The documents list cannot be empty")
+
+    persist_path = Path(persist_directory)
+    persist_path.mkdir(parents=True, exist_ok=True)
+
+    ids = [
+        document.metadata["chunk_id"]
+        for document in documents
+    ]
+
+    vector_store = Chroma.from_documents(
+        documents=documents,
+        embedding=embeddings,
+        ids=ids,
+        collection_name=collection_name,
+        persist_directory=str(persist_path),
     )
 
-    if documents:
-        ids = [doc.metadata["chunk_id"] for doc in documents]
-        vector_store.add_documents(documents=documents, ids=ids)
-
     return vector_store
+
+
+def load_chroma_store(
+    embeddings: Embeddings,
+    persist_directory: str = "data/processed/chroma",
+    collection_name: str = "azure_docs",
+) -> Chroma:
+    """Load an existing Chroma vector store."""
+
+    persist_path = Path(persist_directory)
+
+    if not persist_path.exists():
+        raise FileNotFoundError(
+            f"Chroma directory not found: {persist_directory}"
+        )
+
+    return Chroma(
+        embedding_function=embeddings,
+        collection_name=collection_name,
+        persist_directory=str(persist_path),
+    )
