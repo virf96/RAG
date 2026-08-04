@@ -1,8 +1,8 @@
-from app.retrieval.retriever import create_retriever
+from app.vectorstore.chroma_store import create_vector_store
 
 
 def main() -> None:
-    retriever = create_retriever()
+    vector_store = create_vector_store()
 
     questions = [
         "What is Azure Functions?",
@@ -12,13 +12,20 @@ def main() -> None:
     ]
 
     for question in questions:
-        print(f"\nQUESTION: {question}")
+        print(f"\n{'=' * 100}")
+        print(f"QUESTION: {question}")
 
-        documents = retriever.invoke(question)
+        results = vector_store.similarity_search_with_score(
+            query=question,
+            k=5,
+        )
 
-        for rank, document in enumerate(documents, start=1):
+        for rank, (document, distance) in enumerate(results, start=1):
             print(f"\nResult {rank}")
-            print(document.metadata)
+            print(f"Distance: {distance:.4f}")
+            print(f"File: {document.metadata.get('file_name')}")
+            print(f"Page: {document.metadata.get('page_number')}")
+            print(f"Chunk ID: {document.metadata.get('chunk_id')}")
             print(document.page_content[:500])
 
 

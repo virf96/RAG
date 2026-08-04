@@ -1,15 +1,20 @@
 from pathlib import Path
+from app.embeddings.factory import create_embeddings
 
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 
+from app.config.settings import get_settings
+
+settings = get_settings()
+embeddings = create_embeddings()
 
 def create_chroma_store(
-    documents: list[Document],
-    embeddings: Embeddings,
-    persist_directory: str = "data/processed/chroma",
-    collection_name: str = "azure_docs",
+    documents=list[Document],
+    embeddings=embeddings,
+    persist_directory=settings.chroma_directory,
+    collection_name=settings.chroma_collection,
 ) -> Chroma:
     """Create and persist a Chroma vector store."""
 
@@ -37,8 +42,8 @@ def create_chroma_store(
 
 def load_chroma_store(
     embeddings: Embeddings,
-    persist_directory: str = "data/processed/chroma",
-    collection_name: str = "azure_docs",
+    persist_directory: str,
+    collection_name: str,
 ) -> Chroma:
     """Load an existing Chroma vector store."""
 
@@ -46,11 +51,24 @@ def load_chroma_store(
 
     if not persist_path.exists():
         raise FileNotFoundError(
-            f"Chroma directory not found: {persist_directory}"
+            f"Chroma directory not found: {persist_path.resolve()}"
         )
 
     return Chroma(
         embedding_function=embeddings,
         collection_name=collection_name,
         persist_directory=str(persist_path),
+    )
+
+
+def create_vector_store() -> Chroma:
+    """Load the configured persisted Chroma vector store."""
+
+    settings = get_settings()
+    embeddings = create_embeddings()
+
+    return load_chroma_store(
+        embeddings=embeddings,
+        persist_directory=settings.chroma_directory,
+        collection_name=settings.chroma_collection,
     )
