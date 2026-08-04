@@ -1,9 +1,7 @@
-from app.vectorstore.chroma_store import create_vector_store
+from app.retrieval.service import retrieve_documents
 
 
 def main() -> None:
-    vector_store = create_vector_store()
-
     questions = [
         "What is Azure Functions?",
         "When should I use Azure Container Apps?",
@@ -12,20 +10,17 @@ def main() -> None:
     ]
 
     for question in questions:
-        print(f"\n{'=' * 100}")
-        print(f"QUESTION: {question}")
+        result = retrieve_documents(question)
 
-        results = vector_store.similarity_search_with_score(
-            query=question,
-            k=5,
-        )
+        print(f"\nQUESTION: {question}")
+        print(f"Retrieval latency: {result.duration_seconds:.4f}s")
+        print(f"Documents retrieved: {result.retrieved_count}")
 
-        for rank, (document, distance) in enumerate(results, start=1):
+        for rank, document in enumerate(result.documents, start=1):
             print(f"\nResult {rank}")
-            print(f"Distance: {distance:.4f}")
             print(f"File: {document.metadata.get('file_name')}")
             print(f"Page: {document.metadata.get('page_number')}")
-            print(f"Chunk ID: {document.metadata.get('chunk_id')}")
+            print(f"Chunk: {document.metadata.get('chunk_id')}")
             print(document.page_content[:500])
 
 
